@@ -8,7 +8,7 @@ export class TwoDots {
     private canvas: HTMLCanvasElement
     private ctx: CanvasRenderingContext2D
 
-    private dots: Dot[][]
+    private dots: (Dot | undefined)[][]
 
     private width: number
     private height: number
@@ -143,7 +143,7 @@ export class TwoDots {
         // Render dots
         this.dots.forEach(dots => {
             dots.forEach(dot => {
-                dot.render(this.renderSettings)
+                dot && dot.render(this.renderSettings)
             })
         })
     }
@@ -180,9 +180,14 @@ export class TwoDots {
             this.mouseX = e.x
             this.mouseY = e.y
             this.mouseDown = e.buttons > 0
+
+            if (!this.mouseDown) {
+                this.completeSequence()
+            }
+
             this.dots.forEach(dots => {
                 dots.forEach(dot => {
-                    dot.mouseMove(e, this.renderSettings)
+                    dot && dot.mouseMove(e, this.renderSettings)
                 })
             })
         })
@@ -192,14 +197,48 @@ export class TwoDots {
             this.sequence = []
             this.dots.forEach(dots => {
                 dots.forEach(dot => {
-                    dot.mouseDown()
+                    dot && dot.mouseDown()
                 })
             })
         })
 
         this.canvas.addEventListener("mouseup", () => {
             this.mouseDown = false
+            this.completeSequence()
         })
     }
 
+    private completeSequence(): void {
+        if (this.sequence.length < 2) {
+            return
+        }
+
+        for (const dot of this.sequence) {
+            this.dots[dot.x][dot.y] = undefined
+        }
+
+        // Drop dots down
+        for (let i: number = this.height - 1; i >= 0; i--) {
+            for (let j: number = 0; j < this.width; j++) {
+                if (this.dots[j][i] === undefined) {
+                    for (let k = i - 1; k >= 0; k--) {
+                        if (this.dots[j][k]) {
+                            this.dots[j][i] = this.dots[j][k]
+                            this.dots[j][k] = undefined
+
+                            const replacedDot = this.dots[j][i]
+
+                            if (replacedDot !== undefined) {
+                                replacedDot.y = i
+                            }
+
+                            break
+                        }
+                    }
+                }
+            }
+        }
+
+        this.sequence = []
+    }
 }

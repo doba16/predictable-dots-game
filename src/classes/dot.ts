@@ -99,7 +99,7 @@ export class Dot {
         return this._y
     }
 
-    private set y(y: number) {
+    public set y(y: number) {
         this._y = y
     }
 
