@@ -1,0 +1,13 @@
+{
+    "include": ["src/**/*.ts"],
+    "compilerOptions": {
+        "outDir": "dist/",
+        "module": "ESNext",
+        "target": "ES6",
+        "allowJs": true,
+        "declaration": true,
+        "strictPropertyInitialization": true,
+        "strictNullChecks": true,
+        "lib": ["DOM", "ES2022"]
+    }
+}
