@@ -213,8 +213,18 @@ export class TwoDots {
             return
         }
 
-        for (const dot of this.sequence) {
-            this.dots[dot.x][dot.y] = undefined
+        if (this.testIfSquare()) {
+            for (let i = 0; i < this.width; i++) {
+                for (let j = 0; j < this.height; j++) {
+                    if (this.dots[i][j]?.color === this.sequence[0].color) {
+                        this.dots[i][j] = undefined
+                    }
+                }
+            }
+        } else {
+            for (const dot of this.sequence) {
+                this.dots[dot.x][dot.y] = undefined
+            }
         }
 
         // Drop dots down
@@ -249,5 +259,16 @@ export class TwoDots {
         }
 
         this.sequence = []
+    }
+
+    private testIfSquare(): boolean {
+        for (let i = 0; i < this.sequence.length; i++) {
+            for (let j = i + 1; j < this.sequence.length; j++) {
+                if (this.sequence[i] === this.sequence[j]) {
+                    return true
+                }
+            }
+        }
+        return false
     }
 }
