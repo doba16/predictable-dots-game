@@ -6,7 +6,8 @@ export class Dot {
     private _x: number
     private _y: number
 
-    private animatedY: number
+    private lastY: number
+    private animationBeginTime: number
 
     private _color: DotColor
 
@@ -22,20 +23,26 @@ export class Dot {
     }) {
         this._x = x
         this._y = y
-        this.animatedY = y
+        this.lastY = y - 5
         this._color = color
 
         this.selected = false
+
+        this.animationBeginTime = performance.now()
     }
 
     public render(settings: RenderSettings): void {
+        const progress = Math.min(300, performance.now() - this.animationBeginTime) / 300
+        const interpolation = 1 - (progress - 1) * (progress - 1) * (progress - 0.5) * (-2)
+        const renderY = interpolation * (this.y - this.lastY) + this.lastY
+
         if (this.selected) {
             settings.context.fillStyle = this.color.shadowColor
 
             settings.context.beginPath()
             settings.context.ellipse(
                 settings.xOff + settings.gridSize * (1 + this.x),
-                settings.yOff + settings.gridSize * (1 + this.y),
+                settings.yOff + settings.gridSize * (1 + renderY),
                 settings.gridSize / 2.5,
                 settings.gridSize / 2.5,
                 0, 0, Math.PI * 2
@@ -48,7 +55,7 @@ export class Dot {
         settings.context.beginPath()
         settings.context.ellipse(
             settings.xOff + settings.gridSize * (1 + this.x),
-            settings.yOff + settings.gridSize * (1 + this.y),
+            settings.yOff + settings.gridSize * (1 + renderY),
             settings.gridSize / 4,
             settings.gridSize / 4,
             0, 0, Math.PI * 2
@@ -100,6 +107,8 @@ export class Dot {
     }
 
     public set y(y: number) {
+        this.lastY = this._y
+        this.animationBeginTime = performance.now()
         this._y = y
     }
 

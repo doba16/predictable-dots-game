@@ -236,6 +236,15 @@ export class TwoDots {
                         }
                     }
                 }
+
+                // Test if dot fell down
+                if (this.dots[j][i] === undefined) {
+                    const dot: Dot = new Dot({x: j, y: i, color: randomElement(ALL_COT_COLORS)})
+                    dot.sequenceBeginCallback = this.beginSequenceCallback.bind(this)
+                    dot.mouseEnterCallback = this.enterDotCallback.bind(this)
+
+                    this.dots[j][i] = dot
+                }
             }
         }
 
