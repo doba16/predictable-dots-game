@@ -42,6 +42,8 @@ jobs:
       - name: Install dependencies
         working-directory: pages-app
         run: yarn
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Build app
         working-directory: pages-app
         run: yarn build
