@@ -1,2 +1,2 @@
 export * from "./dot"
-export * from "./two-dots"
+export * from "./dots-game"

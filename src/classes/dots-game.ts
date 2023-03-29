@@ -1,10 +1,10 @@
-import { ALL_DOT_COLORS as ALL_DOT_COLORS, DOT_COLOR_RED } from "../consts/colors"
+import { ALL_DOT_COLORS as ALL_DOT_COLORS, DOT_COLOR_RED, DUMMY_DOT_COLOR } from "../consts/colors"
 import { DotColor } from "../index"
 import { RenderSettings } from "../types/render-settings"
 import { randomElement } from "../utils/arrays"
 import { Dot } from "./dot"
 
-export class TwoDots {
+export class DotsGame {
 
     private canvas: HTMLCanvasElement
     private ctx: CanvasRenderingContext2D
@@ -91,6 +91,11 @@ export class TwoDots {
                 return
             }
 
+            // Do not allow connection of dummy dots
+            if (this.sequence[0].color === DUMMY_DOT_COLOR) {
+                return
+            }
+
             const distSquared = (this.sequence[this.sequence.length - 1].x - dot.x) * (this.sequence[this.sequence.length - 1].x - dot.x) +
                     (this.sequence[this.sequence.length - 1].y - dot.y) * (this.sequence[this.sequence.length - 1].y - dot.y)
 
@@ -116,7 +121,7 @@ export class TwoDots {
     }
 
     /**
-     * Draw the game of Two Dots
+     * Draw the Dots Game
      */
     private draw() {
         // Clear frame
