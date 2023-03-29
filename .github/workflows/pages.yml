@@ -37,13 +37,14 @@ jobs:
         uses: actions/setup-node@v2.5.2
         with:
           node-version: 18.15.0
+          registry-url: 'https://npm.pkg.github.com'
       - name: Setup yarn
         run: npm install --global yarn
       - name: Install dependencies
         working-directory: pages-app
         run: yarn
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build app
         working-directory: pages-app
         run: yarn build
