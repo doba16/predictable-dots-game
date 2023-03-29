@@ -36,7 +36,7 @@ export const DUMMY_DOT_COLOR: DotColor = {
     shadowColor: "#77777744"
 }
 
-export const ALL_COT_COLORS: DotColor[] = [
+export const ALL_DOT_COLORS: DotColor[] = [
     DOT_COLOR_BLUE,
     DOT_COLOR_GREEN,
     DOT_COLOR_PURPLE,

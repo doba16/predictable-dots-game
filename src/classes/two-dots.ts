@@ -1,4 +1,5 @@
-import { ALL_COT_COLORS, DOT_COLOR_RED } from "../consts/colors"
+import { ALL_DOT_COLORS as ALL_DOT_COLORS, DOT_COLOR_RED } from "../consts/colors"
+import { DotColor } from "../index"
 import { RenderSettings } from "../types/render-settings"
 import { randomElement } from "../utils/arrays"
 import { Dot } from "./dot"
@@ -20,6 +21,8 @@ export class TwoDots {
     private mouseDown: boolean
     private mouseX: number
     private mouseY: number
+
+    private gameActive: boolean
 
     constructor({canvas, width, height}: {
         canvas: HTMLCanvasElement,
@@ -52,7 +55,7 @@ export class TwoDots {
         for (let i: number = 0; i < this.width; i++) {
             const arr: Dot[] = []
             for (let j: number = 0; j < this.height; j++) {
-                const dot: Dot = new Dot({x: i, y: j, color: randomElement(ALL_COT_COLORS)})
+                const dot: Dot = new Dot({x: i, y: j, color: randomElement(ALL_DOT_COLORS)})
                 dot.sequenceBeginCallback = this.beginSequenceCallback.bind(this)
                 dot.mouseEnterCallback = this.enterDotCallback.bind(this)
                 arr.push(dot)
@@ -64,6 +67,8 @@ export class TwoDots {
         this.mouseDown = false
         this.mouseX = 0
         this.mouseY = 0
+
+        this.gameActive = true
     }
 
     /**
@@ -213,7 +218,9 @@ export class TwoDots {
             return
         }
 
-        if (this.testIfSquare()) {
+        const isSquare = this.testIfSquare()
+
+        if (isSquare) {
             for (let i = 0; i < this.width; i++) {
                 for (let j = 0; j < this.height; j++) {
                     if (this.dots[i][j]?.color === this.sequence[0].color) {
@@ -249,7 +256,7 @@ export class TwoDots {
 
                 // Test if dot fell down
                 if (this.dots[j][i] === undefined) {
-                    const dot: Dot = new Dot({x: j, y: i, color: randomElement(ALL_COT_COLORS)})
+                    const dot: Dot = new Dot({x: j, y: i, color: this.chooseColor(isSquare ? this.sequence[0].color : undefined)})
                     dot.sequenceBeginCallback = this.beginSequenceCallback.bind(this)
                     dot.mouseEnterCallback = this.enterDotCallback.bind(this)
 
@@ -270,5 +277,11 @@ export class TwoDots {
             }
         }
         return false
+    }
+
+    private chooseColor(excluded?: DotColor): DotColor {
+        const colors = [...ALL_DOT_COLORS]
+        const filteredColors = colors.filter(c => c !== excluded)
+        return randomElement(filteredColors)
     }
 }
