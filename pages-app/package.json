@@ -1,0 +1,21 @@
+{
+  "name": "pages-app",
+  "version": "1.0.0",
+  "description": "GitHub Pages Webapp",
+  "source": "src/index.html",
+  "scripts": {
+    "dev": "parcel",
+    "build": "parcel build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "parcel": "^2.8.3",
+    "typescript": "^5.0.2"
+  },
+  "dependencies": {
+    "@doba16/simple-readme-style": "^1.0.0",
+    "@doba16/predictable-dots-game": "../predictable-dots-game"
+  }
+}
