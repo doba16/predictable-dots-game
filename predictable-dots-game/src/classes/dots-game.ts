@@ -185,11 +185,10 @@ export class DotsGame {
         window.addEventListener("resize", resizeCallback)
         resizeCallback()
 
-        // Register mouse events
-        this.canvas.addEventListener("mousemove", (e: MouseEvent) => {
-            this.mouseX = e.x
-            this.mouseY = e.y
-            this.mouseDown = e.buttons > 0
+        const moveEventListener = (mouseX: number, mouseY: number, mouseDown: boolean) => {
+            this.mouseX = mouseX
+            this.mouseY = mouseY
+            this.mouseDown = mouseDown
 
             if (!this.mouseDown) {
                 this.completeSequence()
@@ -197,24 +196,60 @@ export class DotsGame {
 
             this.dots.forEach(dots => {
                 dots.forEach(dot => {
-                    dot && dot.mouseMove(e, this.renderSettings)
+                    dot && dot.mouseMove(mouseX, mouseY, this.renderSettings)
                 })
             })
+        }
+
+        // Register mouse events
+        this.canvas.addEventListener("mousemove", (e: MouseEvent) => {
+            moveEventListener(e.offsetX, e.offsetY, e.buttons > 0)
+        })
+        this.canvas.addEventListener("touchmove", (e: TouchEvent) => {
+            e.preventDefault()
+            if (e.touches.length > 0) {
+                const xOff = this.canvas.getBoundingClientRect().left
+                const yOff = this.canvas.getBoundingClientRect().top
+                moveEventListener(e.touches[0].pageX - xOff, e.touches[0].clientY - yOff, true)
+            }
         })
 
-        this.canvas.addEventListener("mousedown", (e: MouseEvent) => {
+        const downEventListener = (mouseX: number, mouseY: number) => {
             this.mouseDown = true
             this.sequence = []
             this.dots.forEach(dots => {
                 dots.forEach(dot => {
+                    dot && dot.mouseMove(mouseX, mouseY, this.renderSettings)
                     dot && dot.mouseDown()
                 })
             })
+        }
+
+        this.canvas.addEventListener("mousedown", (e: MouseEvent) => {
+            downEventListener(e.offsetX, e.offsetY)
+        })
+        this.canvas.addEventListener("touchstart", (e: TouchEvent) => {
+            e.preventDefault()
+            if (e.touches.length > 0) {
+                const xOff = this.canvas.getBoundingClientRect().left
+                const yOff = this.canvas.getBoundingClientRect().top
+                moveEventListener(e.touches[0].clientX - xOff, e.touches[0].clientY - yOff, false)
+                downEventListener(e.touches[0].clientX - xOff, e.touches[0].clientY - yOff)
+            }
         })
 
-        this.canvas.addEventListener("mouseup", () => {
+        const upEventListener = () => {
             this.mouseDown = false
             this.completeSequence()
+        }
+
+        this.canvas.addEventListener("mouseup", () => {
+            upEventListener()
+        })
+        this.canvas.addEventListener("touchend", (e: TouchEvent) => {
+            e.preventDefault()
+            upEventListener()
+            moveEventListener(0, 0, false)
         })
     }
 

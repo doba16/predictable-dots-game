@@ -63,13 +63,13 @@ export class Dot {
         settings.context.fill()
     }
 
-    public mouseMove(e: MouseEvent, settings: RenderSettings): void {
+    public mouseMove(mouseX: number, mouseY: number, settings: RenderSettings): void {
         const renderedX = settings.xOff + settings.gridSize * (1 + this.x)
         const renderedY = settings.yOff + settings.gridSize * (1 + this.y)
 
-        const distSquared = (e.x - renderedX) * (e.x - renderedX) + (e.y - renderedY) * (e.y - renderedY)
+        const distSquared = (mouseX - renderedX) * (mouseX - renderedX) + (mouseY - renderedY) * (mouseY - renderedY)
         
-        const nextSelected = distSquared <= (settings.gridSize / 4) * (settings.gridSize / 4)
+        const nextSelected = distSquared <= (settings.gridSize / 2.5) * (settings.gridSize / 2.5)
 
         if (this.selected !== nextSelected && nextSelected) {
             if (this.mouseEnterCallback) {
