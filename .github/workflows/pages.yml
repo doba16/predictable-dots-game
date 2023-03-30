@@ -56,7 +56,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build app
         working-directory: pages-app
-        run: yarn build
+        run: yarn build --public-url /predictable-dots-game
         
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
