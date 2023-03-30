@@ -1,15 +1,23 @@
 {
   "name": "@doba16/predictable-dots-game",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/doba16/predictable-dots-game.git"
+  },
+  "author": "Doba16",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/doba16/predictable-dots-game/issues"
+  },
+  "homepage": "https://github.com/doba16/predictable-dots-game#readme",
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "typescript": "^5.0.2"
   },
