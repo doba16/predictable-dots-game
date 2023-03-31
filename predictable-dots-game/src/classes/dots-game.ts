@@ -181,8 +181,8 @@ export class DotsGame {
             }
         }
 
-        // Register window resize listener
-        window.addEventListener("resize", resizeCallback)
+        // Register resize observer
+        new ResizeObserver(resizeCallback).observe(this.canvas)
         resizeCallback()
 
         const moveEventListener = (mouseX: number, mouseY: number, mouseDown: boolean) => {
