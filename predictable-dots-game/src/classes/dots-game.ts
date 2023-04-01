@@ -24,6 +24,16 @@ export class DotsGame {
 
     private gameActive: boolean
 
+    private totalMovesAllowed: number
+    private movesRemaining: number
+
+    /**
+     * Height of upper ui bar
+     */
+    private uiSize: number
+
+    private score: number
+
     constructor({canvas, width, height}: {
         canvas: HTMLCanvasElement,
         width: number,
@@ -68,7 +78,12 @@ export class DotsGame {
         this.mouseX = 0
         this.mouseY = 0
 
+        this.uiSize = 40
+
         this.gameActive = true
+        this.totalMovesAllowed = 30
+        this.movesRemaining = this.totalMovesAllowed
+        this.score = 0
     }
 
     /**
@@ -125,7 +140,77 @@ export class DotsGame {
      */
     private draw() {
         // Clear frame
-        this.ctx.clearRect(0, 0, this.renderSettings.screenWidth, this.renderSettings.screenHeight)
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+
+        // Render UI
+        this.ctx.fillStyle = "#7775"
+        this.ctx.fillRect(0, 0, this.canvas.width, this.uiSize)
+
+        const uiPt = this.uiSize / 25
+
+        const textHeight = uiPt * 16
+        this.ctx.font = `${textHeight}px system-ui`
+
+        // Render remaining moves
+        this.ctx.fillStyle = "red"
+
+        this.ctx.beginPath()
+        this.ctx.ellipse(uiPt * 10, uiPt * 7.5, uiPt * 3, uiPt * 3, 0, 0, Math.PI * 2)
+        this.ctx.fill()
+
+        this.ctx.beginPath()
+        this.ctx.ellipse(uiPt * 10, uiPt * 17.5, uiPt * 3, uiPt * 3, 0, 0, Math.PI * 2)
+        this.ctx.fill()
+
+        this.ctx.beginPath()
+        this.ctx.ellipse(uiPt * 20, uiPt * 17.5, uiPt * 3, uiPt * 3, 0, 0, Math.PI * 2)
+        this.ctx.fill()
+
+        this.ctx.strokeStyle = "red"
+        this.ctx.lineWidth = uiPt
+
+        this.ctx.beginPath()
+        this.ctx.moveTo(uiPt * 10, uiPt * 7.5)
+        this.ctx.lineTo(uiPt * 10, uiPt * 17.5)
+        this.ctx.lineTo(uiPt * 20, uiPt * 17.5)
+        this.ctx.stroke()
+
+        this.ctx.fillStyle = "green"
+
+        this.ctx.beginPath()
+        this.ctx.ellipse(uiPt * 20, uiPt * 7.5, uiPt * 3, uiPt * 3, 0, 0, Math.PI * 2)
+        this.ctx.fill()
+
+
+        // Render score
+        this.ctx.fillStyle = "red"
+
+        this.ctx.beginPath()
+        this.ctx.ellipse(uiPt * 70, uiPt * 7.5, uiPt * 3, uiPt * 3, 0, 0, Math.PI * 2)
+        this.ctx.fill()
+
+        this.ctx.fillStyle = "blue"
+
+        this.ctx.beginPath()
+        this.ctx.ellipse(uiPt * 70, uiPt * 17.5, uiPt * 3, uiPt * 3, 0, 0, Math.PI * 2)
+        this.ctx.fill()
+
+        this.ctx.fillStyle = "green"
+
+        this.ctx.beginPath()
+        this.ctx.ellipse(uiPt * 80, uiPt * 7.5, uiPt * 3, uiPt * 3, 0, 0, Math.PI * 2)
+        this.ctx.fill()
+
+        this.ctx.fillStyle = "purple"
+
+        this.ctx.beginPath()
+        this.ctx.ellipse(uiPt * 80, uiPt * 17.5, uiPt * 3, uiPt * 3, 0, 0, Math.PI * 2)
+        this.ctx.fill()
+
+        this.ctx.fillStyle = "currentColor"
+        this.ctx.textBaseline = "top"
+        this.ctx.fillText(this.movesRemaining.toString(), uiPt * 27, (this.uiSize - textHeight) / 2)
+        this.ctx.fillText(this.score.toString(), uiPt * 87, (this.uiSize - textHeight) / 2)
 
         // Render sequence
         if (this.mouseDown && this.sequence.length > 0) {
@@ -171,10 +256,10 @@ export class DotsGame {
 
             // Get dimensions
             const screenWidth = this.canvas.clientWidth
-            const screenHeight = this.canvas.clientHeight
+            const screenHeight = this.canvas.clientHeight - this.uiSize
             const gridSize = Math.min(screenWidth / (this.width + 1), screenHeight / (this.height + 1))
             const xOff = (screenWidth - (this.width + 1) * gridSize) / 2
-            const yOff = (screenHeight - (this.height + 1) * gridSize) / 2
+            const yOff = (screenHeight - (this.height + 1) * gridSize) / 2 + this.uiSize
 
             this.renderSettings = {
                 screenWidth, screenHeight, gridSize, xOff, yOff, context: this.ctx
@@ -186,6 +271,10 @@ export class DotsGame {
         resizeCallback()
 
         const moveEventListener = (mouseX: number, mouseY: number, mouseDown: boolean) => {
+            if (!this.gameActive) {
+                return
+            }
+
             this.mouseX = mouseX
             this.mouseY = mouseY
             this.mouseDown = mouseDown
@@ -215,6 +304,10 @@ export class DotsGame {
         })
 
         const downEventListener = (mouseX: number, mouseY: number) => {
+            if (!this.gameActive) {
+                return
+            }
+
             this.mouseDown = true
             this.sequence = []
             this.dots.forEach(dots => {
@@ -239,6 +332,10 @@ export class DotsGame {
         })
 
         const upEventListener = () => {
+            if (!this.gameActive) {
+                return
+            }
+
             this.mouseDown = false
             this.completeSequence()
         }
@@ -265,6 +362,7 @@ export class DotsGame {
                 for (let j = 0; j < this.height; j++) {
                     if (this.dots[i][j]?.color === this.sequence[0].color) {
                         this.dots[i][j] = undefined
+                        this.score++
                     }
                 }
             }
@@ -272,6 +370,8 @@ export class DotsGame {
             for (const dot of this.sequence) {
                 this.dots[dot.x][dot.y] = undefined
             }
+
+            this.score += this.sequence.length
         }
 
         // Drop dots down
@@ -306,6 +406,9 @@ export class DotsGame {
         }
 
         this.sequence = []
+
+        this.movesRemaining--
+        this.gameActive = this.movesRemaining > 0
     }
 
     private testIfSquare(): boolean {
