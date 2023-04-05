@@ -7,7 +7,7 @@ export abstract class AbstractGameObject extends EventTarget implements GameObje
 
     abstract checkInteractionIn(interactionX: number, interactionY: number): boolean
 
-    abstract update()
+    abstract update(width: number, height: number): void
 
 
     abstract draw(context: CanvasRenderingContext2D, width: number, height: number): void

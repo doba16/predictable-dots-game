@@ -16,6 +16,6 @@ export interface GameObject {
     /**
      * Called to update the object
      */
-    update(): void
+    update(width: number, height: number): void
 
 }

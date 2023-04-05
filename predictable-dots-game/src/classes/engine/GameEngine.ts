@@ -1,17 +1,19 @@
 import { GameObject } from "./GameObject"
 
-export class GameEngine {
+export class GameEngine extends EventTarget {
 
     private canvas: HTMLCanvasElement
     private ctx: CanvasRenderingContext2D
 
     private gameObjects: GameObject[] = []
 
-    private interactionX: number = 0
-    private interactionY: number = 0
-    private interactionClicked: boolean = false
+    private _interactionX: number = 0
+    private _interactionY: number = 0
+    private _interactionClicked: boolean = false
 
     constructor(canvas: HTMLCanvasElement) {
+        super()
+
         this.canvas = canvas
         
         const ctx = canvas.getContext("2d")
@@ -43,6 +45,9 @@ export class GameEngine {
         // Update canvas
         this.updateCanvas()
 
+        // Update Game Objects
+        this.updateGameObjects()
+
         // Draw the game after all game objects are updated
         this.draw()
 
@@ -64,24 +69,21 @@ export class GameEngine {
         // Clear canvas
         this.ctx.clearRect(0, 0, width, height)
     }
+
+    /**
+     * Update game objects
+     */
+    private updateGameObjects() {
+        this.dispatchEvent(new Event("update"))
+
+        this.gameObjects.forEach(gameObject => gameObject.update(this.canvas.width, this.canvas.height))
+    }
     
     /**
      * Draws the game.
      */
     private draw(): void {
-        this.gameObjects.forEach(gameObject => gameObject.draw(this.ctx, this.canvas.width, this.canvas.height))
-
-        // For Testing: Draw a diagonal line
-        this.ctx.beginPath()
-        this.ctx.moveTo(0, 0)
-        this.ctx.lineTo(this.canvas.width, this.canvas.height)
-        this.ctx.stroke()
-
-        this.ctx.fillStyle = this.interactionClicked ? "red" : "black";
-
-        this.ctx.beginPath()
-        this.ctx.ellipse(this.interactionX, this.interactionY, 10, 10, 0, 0, Math.PI * 2)
-        this.ctx.fill()
+        this.gameObjects.forEach(gameObject => gameObject.draw(this.ctx, this.canvas.width, this.canvas.height))        
     }
 
     public addGameObject(object: GameObject): void {
@@ -104,62 +106,96 @@ export class GameEngine {
     }
 
     private handleMouseMoveEvent(event: MouseEvent): void {
-        this.interactionX = event.offsetX / this.canvas.clientWidth * this.canvas.width
-        this.interactionY = event.offsetY / this.canvas.clientHeight * this.canvas.height
+        this._interactionX = event.offsetX / this.canvas.clientWidth * this.canvas.width
+        this._interactionY = event.offsetY / this.canvas.clientHeight * this.canvas.height
 
-        this.interactionClicked = event.buttons > 0
+        this._interactionClicked = event.buttons > 0
 
         this.updateInteraction()
+        this.dispatchEvent(new Event("interactionMove"))
     }
 
     private handleTouchMoveEvent(event: TouchEvent): void {
         if (event.touches.length > 0) {
-            this.interactionX = (event.touches[0].pageX - this.canvas.getBoundingClientRect().left) / this.canvas.getBoundingClientRect().width * this.canvas.width
-            this.interactionY = (event.touches[0].pageY - this.canvas.getBoundingClientRect().top) / this.canvas.getBoundingClientRect().height * this.canvas.height
+            this._interactionX = (event.touches[0].pageX - this.canvas.getBoundingClientRect().left) / this.canvas.getBoundingClientRect().width * this.canvas.width
+            this._interactionY = (event.touches[0].pageY - this.canvas.getBoundingClientRect().top) / this.canvas.getBoundingClientRect().height * this.canvas.height
         }
 
-        this.interactionClicked = true
+        this._interactionClicked = true
 
         this.updateInteraction()
+        this.dispatchEvent(new Event("interactionMove"))
     }
 
     private handleMouseDownEvent(event: MouseEvent): void {
         this.handleMouseMoveEvent(event)
         
-        this.interactionClicked = true
+        this._interactionClicked = true
 
         this.updateInteraction()
+        this.dispatchEvent(new Event("interactionDown"))
     }
 
     private handleTouchDownEvent(event: TouchEvent) {
         this.handleTouchMoveEvent(event)
 
-        this.interactionClicked = true
+        this._interactionClicked = true
 
         this.updateInteraction()
+        this.dispatchEvent(new Event("interactionDown"))
     }
 
     private handleMouseUpEvent(event: MouseEvent): void {
         this.handleMouseMoveEvent(event)
         
-        this.interactionClicked = false
+        this._interactionClicked = false
 
         this.updateInteraction()
+        this.dispatchEvent(new Event("interactionUp"))
     }
 
     private handleTouchUpEvent(event: TouchEvent) {
         this.handleTouchMoveEvent(event)
 
-        this.interactionClicked = false
+        this._interactionClicked = false
 
         this.updateInteraction()
+        this.dispatchEvent(new Event("interactionUp"))
     }
 
     /**
      * Forward events to all game objects 
      */
     private updateInteraction(): void {
-        this.gameObjects.forEach(gameObject => gameObject.updateInteraction(this.interactionX, this.interactionY, this.interactionClicked))
+        this.gameObjects.forEach(gameObject => gameObject.updateInteraction(this._interactionX, this._interactionY, this._interactionClicked))
+    }
+
+    // =============================================================================================
+    //  Getters / Setters
+    // =============================================================================================
+
+    public get interactionClicked(): boolean {
+        return this._interactionClicked
+    }
+
+    public get interactionX(): number {
+        return this._interactionX
+    }
+
+    public get interactionY(): number {
+        return this._interactionY
+    }
+
+    public get context(): CanvasRenderingContext2D {
+        return this.ctx
+    }
+
+    public get width(): number {
+        return this.canvas.width
+    }
+
+    public get height(): number {
+        return this.canvas.height
     }
 
 }
