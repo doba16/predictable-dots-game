@@ -1,5 +1,5 @@
-import { AbstractGameObject } from "./AbstractGameObject";
-import { GameObject } from "./GameObject";
+import { AbstractGameObject } from "./abstract-game-object";
+import { GameObject } from "./game-object";
 
 export abstract class CircleGameObject extends AbstractGameObject {
 

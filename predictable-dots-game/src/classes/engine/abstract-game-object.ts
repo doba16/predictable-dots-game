@@ -1,4 +1,4 @@
-import { GameObject } from "./GameObject"
+import { GameObject } from "./game-object"
 
 export abstract class AbstractGameObject extends EventTarget implements GameObject {
     

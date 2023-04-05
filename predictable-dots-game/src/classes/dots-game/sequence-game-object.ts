@@ -1,6 +1,6 @@
-import { DUMMY_DOT_COLOR } from "../index";
-import { RenderSettings } from "../types/render-settings";
-import { Dot, GameObject } from "./index";
+import { DUMMY_DOT_COLOR, Dot } from "../../index";
+import { RenderSettings } from "../../types/render-settings";
+import { GameObject } from "../engine/index";
 
 
 export class SequenceGameObject implements GameObject {

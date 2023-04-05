@@ -1,9 +1,10 @@
-import { ALL_DOT_COLORS as ALL_DOT_COLORS, DOT_COLOR_RED, DUMMY_DOT_COLOR } from "../consts/colors"
-import { DotColor, GameEngine, SequenceGameObject } from "../index"
-import { GameSettings } from "../types/game-settings"
-import { RenderSettings } from "../types/render-settings"
-import { randomElement } from "../utils/arrays"
+import { ALL_DOT_COLORS as ALL_DOT_COLORS, DOT_COLOR_RED, DUMMY_DOT_COLOR } from "../../consts/colors"
+import { GameEngine, SequenceGameObject } from "../index"
+import { GameSettings } from "../../types/game-settings"
+import { RenderSettings } from "../../types/render-settings"
+import { randomElement } from "../../utils/arrays"
 import { Dot } from "./dot"
+import { DotColor } from "../../index"
 
 export class DotsGame {
 

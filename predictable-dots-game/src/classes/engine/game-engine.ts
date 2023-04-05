@@ -1,4 +1,4 @@
-import { GameObject } from "./GameObject"
+import { GameObject } from "./game-object"
 
 export class GameEngine extends EventTarget {
 
