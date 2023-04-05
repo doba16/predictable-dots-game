@@ -1,123 +1,85 @@
 import { DotColor } from "../types/dot-color"
+import { GameSettings } from "../types/game-settings"
 import { RenderSettings } from "../types/render-settings"
+import { CircleGameObject } from "./index"
 
-export class Dot {
+export class Dot extends CircleGameObject {
 
-    private _x: number
-    private _y: number
+    private _xLocation: number
+    private _yLocation: number
+
+    private _renderSettings: RenderSettings
 
     private lastY: number
     private animationBeginTime: number
 
     private _color: DotColor
 
-    private selected: boolean
-
-    private _mouseEnterCallback?: (dot: Dot) => void
-    private _sequenceBeginCallback?: (dot: Dot) => void
-
     constructor({ x, y, color }: {
         x: number,
         y: number,
         color: DotColor
     }) {
-        this._x = x
-        this._y = y
+        super(0, 0, 20)
+
+        this._xLocation = x
+        this._yLocation = y
         this.lastY = y - 5
         this._color = color
 
-        this.selected = false
-
         this.animationBeginTime = performance.now()
+
+        this._renderSettings = {
+            gridSize: 0,
+            xOff: 0,
+            yOff: 0
+        }
     }
 
-    public render(settings: RenderSettings): void {
+    public update(): void {
+        this.x = (this.xLocation + 1) * this.renderSettings.gridSize + this.renderSettings.xOff
+        this.y = (this.yLocation + 1) * this.renderSettings.gridSize + this.renderSettings.yOff
+
+        this.radius = this.renderSettings.gridSize / 2.5
+    }
+
+    public draw(context: CanvasRenderingContext2D, width: number, height: number): void {
         const progress = Math.min(300, performance.now() - this.animationBeginTime) / 300
         const interpolation = 1 - (progress - 1) * (progress - 1) * (progress - 0.5) * (-2)
         const renderY = interpolation * (this.y - this.lastY) + this.lastY
 
-        if (this.selected) {
-            settings.context.fillStyle = this.color.shadowColor
+        if (this.interactionIn) {
+            context.fillStyle = this.color.shadowColor
 
-            settings.context.beginPath()
-            settings.context.ellipse(
-                settings.xOff + settings.gridSize * (1 + this.x),
-                settings.yOff + settings.gridSize * (1 + renderY),
-                settings.gridSize / 2.5,
-                settings.gridSize / 2.5,
-                0, 0, Math.PI * 2
-            )
-            settings.context.fill()
+            context.beginPath()
+            context.ellipse(this.x, this.y, this.radius, this.radius, 0, 0, Math.PI * 2)
+            context.fill()
         }
 
-        settings.context.fillStyle = this.color.color
+        context.fillStyle = this.color.color
 
-        settings.context.beginPath()
-        settings.context.ellipse(
-            settings.xOff + settings.gridSize * (1 + this.x),
-            settings.yOff + settings.gridSize * (1 + renderY),
-            settings.gridSize / 4,
-            settings.gridSize / 4,
-            0, 0, Math.PI * 2
-        )
-        settings.context.fill()
+        context.beginPath()
+        context.ellipse(this.x, this.y, this.radius / 3 * 2, this.radius / 3 * 2, 0, 0, Math.PI * 2)
+        context.fill()
     }
 
-    public mouseMove(mouseX: number, mouseY: number, settings: RenderSettings): void {
-        const renderedX = settings.xOff + settings.gridSize * (1 + this.x)
-        const renderedY = settings.yOff + settings.gridSize * (1 + this.y)
 
-        const distSquared = (mouseX - renderedX) * (mouseX - renderedX) + (mouseY - renderedY) * (mouseY - renderedY)
-        
-        const nextSelected = distSquared <= (settings.gridSize / 2.5) * (settings.gridSize / 2.5)
-
-        if (this.selected !== nextSelected && nextSelected) {
-            if (this.mouseEnterCallback) {
-                this.mouseEnterCallback(this)
-            }
-        }
-
-        this.selected = nextSelected
+    public get xLocation(): number {
+        return this._xLocation
     }
 
-    public mouseDown() {
-        if (this.selected && this.sequenceBeginCallback) {
-            this.sequenceBeginCallback(this)
-        }
-    }
- 
-    public set sequenceBeginCallback(sequenceBeginCallback: ((dot: Dot) => void) | undefined) {
-        this._sequenceBeginCallback = sequenceBeginCallback
+    private set xLocation(x: number) {
+        this._xLocation = x
     }
 
-    public get sequenceBeginCallback(): ((dot: Dot) => void) | undefined {
-        return this._sequenceBeginCallback
+    public get yLocation(): number {
+        return this._yLocation
     }
 
-    public get x(): number {
-        return this._x
-    }
-
-    private set x(x: number) {
-        this._x = x
-    }
-
-    public get y(): number {
-        return this._y
-    }
-
-    public set y(y: number) {
-        this.lastY = this._y
+    public set yLocation(y: number) {
+        this.lastY = this._yLocation
         this.animationBeginTime = performance.now()
-        this._y = y
-    }
-
-    public set mouseEnterCallback(mouseEnterCallback: ((dot: Dot) => void) | undefined) {
-        this._mouseEnterCallback = mouseEnterCallback
-    }
-
-    public get mouseEnterCallback(): ((dot: Dot) => void) | undefined {
-        return this._mouseEnterCallback
+        this._yLocation = y
     }
 
     public set color(color: DotColor) {
@@ -126,5 +88,13 @@ export class Dot {
 
     public get color(): DotColor {
         return this._color
+    }
+
+    public get renderSettings(): RenderSettings {
+        return this._renderSettings
+    }
+
+    public set renderSettings(renderSettings: RenderSettings) {
+        this._renderSettings = renderSettings
     }
 }
