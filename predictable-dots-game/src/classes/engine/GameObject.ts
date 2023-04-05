@@ -3,7 +3,7 @@ export interface GameObject {
     /**
      * Draws the game object.
      */
-    draw(context: CanvasRenderingContext2D, width: number, height: number): void
+    draw(context: CanvasRenderingContext2D, width: number, height: number, interactionX: number, interactionY: number, interactionClicked: boolean): void
 
     /**
      * Called to update the interaction
