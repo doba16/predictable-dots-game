@@ -1,6 +1,8 @@
 import { DotColor } from "../types/dot-color"
 import { GameSettings } from "../types/game-settings"
 import { RenderSettings } from "../types/render-settings"
+import { InterpolatedValue } from "./engine/interpolated-value"
+import { SpringInterpolatedValue } from "./engine/spring-interpolated-value"
 import { CircleGameObject } from "./index"
 
 export class Dot extends CircleGameObject {
@@ -8,10 +10,9 @@ export class Dot extends CircleGameObject {
     private _xLocation: number
     private _yLocation: number
 
-    private _renderSettings: RenderSettings
+    private _yInterpolatedValue: InterpolatedValue
 
-    private lastY: number
-    private animationBeginTime: number
+    private _renderSettings: RenderSettings
 
     private _color: DotColor
 
@@ -24,10 +25,10 @@ export class Dot extends CircleGameObject {
 
         this._xLocation = x
         this._yLocation = y
-        this.lastY = y - 5
         this._color = color
 
-        this.animationBeginTime = performance.now()
+        this._yInterpolatedValue = new SpringInterpolatedValue(y - 5)
+        this._yInterpolatedValue.value = y
 
         this._renderSettings = {
             gridSize: 0,
@@ -38,16 +39,12 @@ export class Dot extends CircleGameObject {
 
     public update(): void {
         this.x = (this.xLocation + 1) * this.renderSettings.gridSize + this.renderSettings.xOff
-        this.y = (this.yLocation + 1) * this.renderSettings.gridSize + this.renderSettings.yOff
+        this.y = (this._yInterpolatedValue.interpolate() + 1) * this.renderSettings.gridSize + this.renderSettings.yOff
 
         this.radius = this.renderSettings.gridSize / 2.5
     }
 
     public draw(context: CanvasRenderingContext2D, width: number, height: number): void {
-        const progress = Math.min(300, performance.now() - this.animationBeginTime) / 300
-        const interpolation = 1 - (progress - 1) * (progress - 1) * (progress - 0.5) * (-2)
-        const renderY = interpolation * (this.y - this.lastY) + this.lastY
-
         if (this.interactionIn) {
             context.fillStyle = this.color.shadowColor
 
@@ -77,9 +74,8 @@ export class Dot extends CircleGameObject {
     }
 
     public set yLocation(y: number) {
-        this.lastY = this._yLocation
-        this.animationBeginTime = performance.now()
         this._yLocation = y
+        this._yInterpolatedValue.value = y
     }
 
     public set color(color: DotColor) {
