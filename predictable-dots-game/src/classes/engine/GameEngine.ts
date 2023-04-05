@@ -7,6 +7,9 @@ export class GameEngine extends EventTarget {
 
     private gameObjects: GameObject[] = []
 
+    private _width: number = 0
+    private _height: number = 0
+
     private _interactionX: number = 0
     private _interactionY: number = 0
     private _interactionClicked: boolean = false
@@ -60,14 +63,14 @@ export class GameEngine extends EventTarget {
      */
     private updateCanvas(): void {
         // Update size
-        const width = this.canvas.getBoundingClientRect().width
-        const height = this.canvas.getBoundingClientRect().height
+        this._width = this.canvas.getBoundingClientRect().width
+        this._height = this.canvas.getBoundingClientRect().height
 
-        this.canvas.width = width
-        this.canvas.height = height
+        this.canvas.width = this._width
+        this.canvas.height = this._height
 
         // Clear canvas
-        this.ctx.clearRect(0, 0, width, height)
+        this.ctx.clearRect(0, 0, this._width, this._height)
     }
 
     /**
@@ -83,11 +86,15 @@ export class GameEngine extends EventTarget {
      * Draws the game.
      */
     private draw(): void {
-        this.gameObjects.forEach(gameObject => gameObject.draw(this.ctx, this.canvas.width, this.canvas.height))        
+        this.gameObjects.forEach(gameObject => gameObject.draw(this.ctx, this.canvas.width, this.canvas.height, this.interactionX, this.interactionY, this.interactionClicked))        
     }
 
     public addGameObject(object: GameObject): void {
         this.gameObjects.push(object)
+    }
+
+    public removeGameObject(object: GameObject): void {
+        this.gameObjects = this.gameObjects.filter(o => o !== object)
     }
 
     // =============================================================================================
@@ -191,11 +198,11 @@ export class GameEngine extends EventTarget {
     }
 
     public get width(): number {
-        return this.canvas.width
+        return this._width
     }
 
     public get height(): number {
-        return this.canvas.height
+        return this._height
     }
 
 }
