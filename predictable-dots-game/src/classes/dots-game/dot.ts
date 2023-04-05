@@ -1,9 +1,9 @@
-import { DotColor } from "../types/dot-color"
-import { GameSettings } from "../types/game-settings"
-import { RenderSettings } from "../types/render-settings"
-import { InterpolatedValue } from "./engine/interpolated-value"
-import { SpringInterpolatedValue } from "./engine/spring-interpolated-value"
-import { CircleGameObject } from "./index"
+import { DotColor } from "../../types/dot-color"
+import { GameSettings } from "../../types/game-settings"
+import { RenderSettings } from "../../types/render-settings"
+import { InterpolatedValue } from "../engine/interpolated-value"
+import { SpringInterpolatedValue } from "../engine/spring-interpolated-value"
+import { CircleGameObject } from "../index"
 
 export class Dot extends CircleGameObject {
 
