@@ -26,17 +26,17 @@ export class DotsGame {
     private scoreDisplay: UiBarElement
     private retryButton: UiBarElement
 
-    private gameActive: boolean
+    private gameActive: boolean = true
 
     private totalMovesAllowed: number
-    private movesRemaining: number
+    private movesRemaining: number = 0
 
     /**
      * Height of upper ui bar
      */
     private uiSize: number
 
-    private score: number
+    private score: number = 0
 
     constructor({engine, width, height}: {
         engine: GameEngine,
@@ -61,8 +61,7 @@ export class DotsGame {
 
         this.uiSize = 40
         this.totalMovesAllowed = 30
-        this.movesRemaining = this.totalMovesAllowed
-        this.score = 0
+        
 
         this.sequence = new SequenceGameObject()
         this.engine.addGameObject(this.sequence)
@@ -78,7 +77,6 @@ export class DotsGame {
         this.engine.addGameObject(this.scoreDisplay)
         this.scoreDisplay.height = this.uiSize
         this.scoreDisplay.width = 3 * this.uiSize
-        this.scoreDisplay.x = 3.5 * this.uiSize
         this.scoreDisplay.text = this.score.toString()
         this.scoreDisplay.y = this.uiSize / 2
 
@@ -88,10 +86,28 @@ export class DotsGame {
         this.engine.addGameObject(this.retryButton)
         this.retryButton.hoverEffect = true
         this.retryButton.y = this.uiSize / 2
-        this.retryButton.addEventListener("interactionUp", () => alert("Click!"))
+        this.retryButton.addEventListener("interactionUp", this.restartGame.bind(this))
 
         // Initialize dots
         this.dots = []
+
+        this.restartGame()
+    }
+
+    private restartGame() {
+        this.movesRemaining = this.totalMovesAllowed
+        this.score = 0
+
+        this.dots.forEach(dots => {
+            dots.forEach(dot => {
+                if (dot) {
+                    this.engine.removeGameObject(dot)
+                }
+            })
+        })
+
+        this.dots = []
+
         for (let i: number = 0; i < this.gameSettings.gridWidth; i++) {
             const arr: Dot[] = []
             for (let j: number = 0; j < this.gameSettings.gridHeight; j++) {
@@ -102,13 +118,14 @@ export class DotsGame {
                 
                 arr.push(dot)
 
-                engine.addGameObject(dot)
+                this.engine.addGameObject(dot)
             }
             this.dots.push(arr)
         }
 
         this.gameActive = true
-        
+        this.scoreDisplay.text = this.score.toString()
+        this.movesDisplay.text = this.movesRemaining.toString()
     }
 
     /**
