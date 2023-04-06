@@ -1,2 +1,2 @@
-export * from "./render-settings"
+export * from "./game-settings"
 export * from "./dot-color"
