@@ -13,6 +13,7 @@
     "vite": "^4.2.0"
   },
   "dependencies": {
-    "@doba16/predictable-dots-game": "../predictable-dots-game"
+    "@doba16/predictable-dots-game": "../predictable-dots-game",
+    "vite-svg-loader": "^4.0.0"
   }
 }
