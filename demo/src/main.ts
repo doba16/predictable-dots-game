@@ -1,11 +1,21 @@
 import './style.css'
-import {DotsGame} from "@doba16/predictable-dots-game"
+import {DotsGame, GameEngine} from "@doba16/predictable-dots-game"
 
 const canvas: HTMLCanvasElement = document.getElementById("test-canvas") as HTMLCanvasElement
 
-new DotsGame({
+/* new DotsGame({
     canvas,
     width: 6,
     height: 6
-}).startDrawing()
+}).startDrawing() */
+
+
+const engine = new GameEngine(canvas)
+engine.initialize()
+
+new DotsGame({
+    engine,
+    width: 6,
+    height: 6
+})
 
