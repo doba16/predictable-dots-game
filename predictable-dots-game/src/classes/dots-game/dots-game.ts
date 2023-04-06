@@ -1,10 +1,12 @@
 import { ALL_DOT_COLORS as ALL_DOT_COLORS, DOT_COLOR_RED, DUMMY_DOT_COLOR } from "../../consts/colors"
-import { GameEngine, SequenceGameObject } from "../index"
+import { GameEngine, GameObject, SequenceGameObject } from "../index"
 import { GameSettings } from "../../types/game-settings"
 import { RenderSettings } from "../../types/render-settings"
 import { randomElement } from "../../utils/arrays"
 import { Dot } from "./dot"
 import { DotColor } from "../../index"
+import { UiBarElement } from "./ui-bar-element"
+import MovesIcon from "../../../assets/moves.png"
 
 export class DotsGame {
 
@@ -17,6 +19,9 @@ export class DotsGame {
     private renderSettings: RenderSettings
 
     private sequence: SequenceGameObject
+
+    private movesDisplay: UiBarElement
+    private scoreDisplay: UiBarElement
 
     private gameActive: boolean
 
@@ -51,6 +56,27 @@ export class DotsGame {
             yOff: 0
         }
 
+        this.uiSize = 40
+        this.totalMovesAllowed = 30
+        this.movesRemaining = this.totalMovesAllowed
+        this.score = 0
+
+        this.sequence = new SequenceGameObject()
+        this.engine.addGameObject(this.sequence)
+
+        this.movesDisplay = new UiBarElement(MovesIcon, "")
+        this.engine.addGameObject(this.movesDisplay)
+        this.movesDisplay.height = this.uiSize
+        this.movesDisplay.width = 3 * this.uiSize
+        this.movesDisplay.text = this.movesRemaining.toString()
+
+        this.scoreDisplay = new UiBarElement(MovesIcon, "")
+        this.engine.addGameObject(this.scoreDisplay)
+        this.scoreDisplay.height = this.uiSize
+        this.scoreDisplay.width = 3 * this.uiSize
+        this.scoreDisplay.x = 3.5 * this.uiSize
+        this.scoreDisplay.text = this.score.toString()
+
         // Initialize dots
         this.dots = []
         for (let i: number = 0; i < this.gameSettings.gridWidth; i++) {
@@ -68,15 +94,8 @@ export class DotsGame {
             this.dots.push(arr)
         }
 
-        this.sequence = new SequenceGameObject()
-        this.engine.addGameObject(this.sequence)
-        
-        this.uiSize = 40
-
         this.gameActive = true
-        this.totalMovesAllowed = 30
-        this.movesRemaining = this.totalMovesAllowed
-        this.score = 0
+        
     }
 
     /**
@@ -117,84 +136,6 @@ export class DotsGame {
         if (this.engine.interactionClicked) {
             this.sequence.attemptAddDot(dot)
         }
-    }
-
-    /**
-     * Draw the Dots Game
-     */
-    private draw() {
-        // Clear frame
-        /* this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
-
-        // Render UI
-        this.ctx.fillStyle = "#7775"
-        this.ctx.fillRect(0, 0, this.canvas.width, this.uiSize)
-
-        const uiPt = this.uiSize / 25
-
-        const textHeight = uiPt * 16
-        this.ctx.font = `${textHeight}px system-ui`
-
-        // Render remaining moves
-        this.ctx.fillStyle = "red"
-
-        this.ctx.beginPath()
-        this.ctx.ellipse(uiPt * 10, uiPt * 7.5, uiPt * 3, uiPt * 3, 0, 0, Math.PI * 2)
-        this.ctx.fill()
-
-        this.ctx.beginPath()
-        this.ctx.ellipse(uiPt * 10, uiPt * 17.5, uiPt * 3, uiPt * 3, 0, 0, Math.PI * 2)
-        this.ctx.fill()
-
-        this.ctx.beginPath()
-        this.ctx.ellipse(uiPt * 20, uiPt * 17.5, uiPt * 3, uiPt * 3, 0, 0, Math.PI * 2)
-        this.ctx.fill()
-
-        this.ctx.strokeStyle = "red"
-        this.ctx.lineWidth = uiPt
-
-        this.ctx.beginPath()
-        this.ctx.moveTo(uiPt * 10, uiPt * 7.5)
-        this.ctx.lineTo(uiPt * 10, uiPt * 17.5)
-        this.ctx.lineTo(uiPt * 20, uiPt * 17.5)
-        this.ctx.stroke()
-
-        this.ctx.fillStyle = "green"
-
-        this.ctx.beginPath()
-        this.ctx.ellipse(uiPt * 20, uiPt * 7.5, uiPt * 3, uiPt * 3, 0, 0, Math.PI * 2)
-        this.ctx.fill()
-
-
-        // Render score
-        this.ctx.fillStyle = "red"
-
-        this.ctx.beginPath()
-        this.ctx.ellipse(uiPt * 70, uiPt * 7.5, uiPt * 3, uiPt * 3, 0, 0, Math.PI * 2)
-        this.ctx.fill()
-
-        this.ctx.fillStyle = "blue"
-
-        this.ctx.beginPath()
-        this.ctx.ellipse(uiPt * 70, uiPt * 17.5, uiPt * 3, uiPt * 3, 0, 0, Math.PI * 2)
-        this.ctx.fill()
-
-        this.ctx.fillStyle = "green"
-
-        this.ctx.beginPath()
-        this.ctx.ellipse(uiPt * 80, uiPt * 7.5, uiPt * 3, uiPt * 3, 0, 0, Math.PI * 2)
-        this.ctx.fill()
-
-        this.ctx.fillStyle = "purple"
-
-        this.ctx.beginPath()
-        this.ctx.ellipse(uiPt * 80, uiPt * 17.5, uiPt * 3, uiPt * 3, 0, 0, Math.PI * 2)
-        this.ctx.fill()
-
-        this.ctx.fillStyle = "currentColor"
-        this.ctx.textBaseline = "top"
-        this.ctx.fillText(this.movesRemaining.toString(), uiPt * 27, (this.uiSize - textHeight) / 2)
-        this.ctx.fillText(this.score.toString(), uiPt * 87, (this.uiSize - textHeight) / 2) */
     }
 
     private completeSequence(): void {
@@ -263,6 +204,9 @@ export class DotsGame {
 
         this.movesRemaining--
         this.gameActive = this.movesRemaining > 0
+
+        this.movesDisplay.text = this.movesRemaining.toString()
+        this.scoreDisplay.text = this.score.toString()
     }
 
     
