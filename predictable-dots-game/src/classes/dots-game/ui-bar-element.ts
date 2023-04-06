@@ -1,8 +1,9 @@
-import { GameObject } from "../index";
+import { AbstractGameObject, GameObject } from "../index";
 
 import Logo from "../../../assets/moves.png"
 
-export class UiBarElement implements GameObject {
+export class UiBarElement extends AbstractGameObject {
+    
     
     private _text: string
     private _icon: HTMLImageElement
@@ -12,15 +13,33 @@ export class UiBarElement implements GameObject {
     private _width: number = 150
     private _height: number = 40
 
+    private _hoverEffect: boolean = false
+
     constructor(icon: string, text: string) {
+        super()
+
         this._icon = new Image()
         this._icon.src = icon
 
         this._text = text || ""
     }
 
+    checkInteractionIn(interactionX: number, interactionY: number): boolean {
+        return interactionX > this.x && interactionX < this.x + this.width && interactionY > this.y && interactionY < this.y + this.height
+    }
+
+    update() {
+        // No action needed
+    }
+
     draw(context: CanvasRenderingContext2D, width: number, height: number, interactionX: number, interactionY: number, interactionClicked: boolean): void {
-        context.fillStyle = "#7775"
+        
+        if (this.hoverEffect && this.checkInteractionIn(interactionX, interactionY)) {
+            context.fillStyle = "#7778"
+        } else {
+            context.fillStyle = "#7775"
+        }
+        
 
         context.beginPath()
         context.moveTo(this.x + this.height / 5, this.y)
@@ -42,14 +61,6 @@ export class UiBarElement implements GameObject {
         context.textBaseline = "middle"
         context.fillStyle = "currentColor"
         context.fillText(this.text, this.x + this.width / 2 + this.height * 0.45, this.y + this.height / 2, this.width - this.height * 1.1)
-    }
-
-
-    updateInteraction(interactionX: number, interactionY: number, interactionClicked: boolean): void {
-        // No action needed
-    }
-    update(width: number, height: number): void {
-        // No action needed
     }
 
     public get x(): number {
@@ -90,5 +101,13 @@ export class UiBarElement implements GameObject {
 
     public set text(text: string) {
         this._text = text
+    }
+
+    public get hoverEffect(): boolean {
+        return this._hoverEffect
+    }
+
+    public set hoverEffect(hoverEffect: boolean) {
+        this._hoverEffect = hoverEffect
     }
 }
