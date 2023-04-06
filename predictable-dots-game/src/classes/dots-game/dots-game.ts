@@ -7,6 +7,8 @@ import { Dot } from "./dot"
 import { DotColor } from "../../index"
 import { UiBarElement } from "./ui-bar-element"
 import MovesIcon from "../../../assets/moves.png"
+import ScoreIcon from "../../../assets/score.png"
+import RetryIcon from "../../../assets/retry.png"
 
 export class DotsGame {
 
@@ -22,6 +24,7 @@ export class DotsGame {
 
     private movesDisplay: UiBarElement
     private scoreDisplay: UiBarElement
+    private retryButton: UiBarElement
 
     private gameActive: boolean
 
@@ -69,13 +72,23 @@ export class DotsGame {
         this.movesDisplay.height = this.uiSize
         this.movesDisplay.width = 3 * this.uiSize
         this.movesDisplay.text = this.movesRemaining.toString()
+        this.movesDisplay.y = this.uiSize / 2
 
-        this.scoreDisplay = new UiBarElement(MovesIcon, "")
+        this.scoreDisplay = new UiBarElement(ScoreIcon, "")
         this.engine.addGameObject(this.scoreDisplay)
         this.scoreDisplay.height = this.uiSize
         this.scoreDisplay.width = 3 * this.uiSize
         this.scoreDisplay.x = 3.5 * this.uiSize
         this.scoreDisplay.text = this.score.toString()
+        this.scoreDisplay.y = this.uiSize / 2
+
+        this.retryButton = new UiBarElement(RetryIcon, "")
+        this.retryButton.width = this.uiSize
+        this.retryButton.height = this.uiSize
+        this.engine.addGameObject(this.retryButton)
+        this.retryButton.hoverEffect = true
+        this.retryButton.y = this.uiSize / 2
+        this.retryButton.addEventListener("interactionUp", () => alert("Click!"))
 
         // Initialize dots
         this.dots = []
@@ -102,10 +115,10 @@ export class DotsGame {
      * Update render settings for dots
      */
     private updateRenderSettings(): void {
-        let gridSize = Math.min(this.engine.width / (this.gameSettings.gridWidth + 1), (this.engine.height - this.uiSize) / (this.gameSettings.gridHeight + 1))
+        let gridSize = Math.min(this.engine.width / (this.gameSettings.gridWidth + 1), (this.engine.height - this.uiSize * 1.5) / (this.gameSettings.gridHeight + 1))
         gridSize = Math.max(gridSize, 0) // make sure grid size is never negative
         const xOff = (this.engine.width - (this.gameSettings.gridWidth + 1) * gridSize) / 2
-        const yOff = ((this.engine.height - this.uiSize) - (this.gameSettings.gridHeight + 1) * gridSize) / 2 + this.uiSize
+        const yOff = ((this.engine.height - this.uiSize * 1.5) - (this.gameSettings.gridHeight + 1) * gridSize) / 2 + this.uiSize * 1.5
 
         this.renderSettings.gridSize = gridSize
         this.renderSettings.xOff = xOff
@@ -120,6 +133,15 @@ export class DotsGame {
         })
 
         this.sequence.renderSettings = this.renderSettings
+
+        this.retryButton.x = this.engine.width - this.retryButton.width - this.uiSize / 2
+
+        const numberOfUiElements = 2
+        const middleUiWidth = numberOfUiElements * this.uiSize * 3 + (numberOfUiElements - 1) * 0.5 * this.uiSize
+        const middleUiX = (this.engine.width - middleUiWidth) / 2
+
+        this.movesDisplay.x = middleUiX
+        this.scoreDisplay.x = middleUiX + this.uiSize * 3.5
     }
 
     /**
@@ -207,6 +229,16 @@ export class DotsGame {
 
         this.movesDisplay.text = this.movesRemaining.toString()
         this.scoreDisplay.text = this.score.toString()
+
+        if (!this.gameActive) {
+            this.dots.forEach(dots => {
+                dots.forEach(dot => {
+                    if (dot) {
+                        dot.disabled = true
+                    }
+                })
+            })
+        }
     }
 
     

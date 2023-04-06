@@ -4,13 +4,14 @@ export abstract class AbstractGameObject extends EventTarget implements GameObje
     
     private _interactionIn: boolean = false
     private _interactionClicked: boolean = false
+    private _disabled: boolean = false
 
     abstract checkInteractionIn(interactionX: number, interactionY: number): boolean
 
     abstract update(width: number, height: number): void
 
 
-    abstract draw(context: CanvasRenderingContext2D, width: number, height: number): void
+    abstract draw(context: CanvasRenderingContext2D, width: number, height: number, interactionX: number, interactionY: number, interactionClicked: boolean): void
 
     public interactionEnter(): void {
         // Do nothing by default
@@ -29,6 +30,10 @@ export abstract class AbstractGameObject extends EventTarget implements GameObje
     }
 
     public updateInteraction(interactionX: number, interactionY: number, interactionClicked: boolean): void {
+        if (this.disabled) {
+            return
+        }
+
         const newInteractionIn = this.checkInteractionIn(interactionX, interactionY)
 
         if (newInteractionIn && !this._interactionIn) {
@@ -61,5 +66,13 @@ export abstract class AbstractGameObject extends EventTarget implements GameObje
     
     public get interactionClicked(): boolean {
         return this._interactionClicked
+    }
+
+    public get disabled(): boolean {
+        return this._disabled
+    }
+    
+    public set disabled(disabled: boolean) {
+        this._disabled = disabled
     }
 }
