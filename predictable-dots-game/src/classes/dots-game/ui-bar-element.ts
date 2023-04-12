@@ -17,8 +17,6 @@ export abstract class UiBarElement extends AbstractGameObject {
     constructor(text?: string) {
         super()
 
-        
-
         this._text = text || ""
     }
 
