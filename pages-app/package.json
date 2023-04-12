@@ -4,7 +4,7 @@
   "description": "GitHub Pages Webapp",
   "source": "src/index.html",
   "scripts": {
-    "dev": "parcel",
+    "dev": "parcel --no-cache",
     "build": "parcel build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
