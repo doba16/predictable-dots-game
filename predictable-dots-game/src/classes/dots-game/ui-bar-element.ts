@@ -2,11 +2,10 @@ import { AbstractGameObject, GameObject } from "../index";
 
 import Logo from "../../../assets/moves.png"
 
-export class UiBarElement extends AbstractGameObject {
+export abstract class UiBarElement extends AbstractGameObject {
     
     
     private _text: string
-    private _icon: HTMLImageElement
 
     private _x: number = 0
     private _y: number = 0
@@ -15,14 +14,15 @@ export class UiBarElement extends AbstractGameObject {
 
     private _hoverEffect: boolean = false
 
-    constructor(icon: string, text: string) {
+    constructor(text?: string) {
         super()
 
-        this._icon = new Image()
-        this._icon.src = icon
+        
 
         this._text = text || ""
     }
+
+    abstract drawGraphic(context: CanvasRenderingContext2D): void
 
     checkInteractionIn(interactionX: number, interactionY: number): boolean {
         return interactionX > this.x && interactionX < this.x + this.width && interactionY > this.y && interactionY < this.y + this.height
@@ -51,10 +51,9 @@ export class UiBarElement extends AbstractGameObject {
         context.arcTo(this.x, this.y + this.height, this.x, this.y, this.height / 5)
         context.lineTo(this.x, this.y + this.height / 5)
         context.arcTo(this.x, this.y, this.x + this.width, this.y, this.height / 5)
-
         context.fill()
         
-        context.drawImage(this._icon, this.x + this.height / 10, this.y + this.height / 10, this.height * 8 / 10, this.height * 8 / 10)
+        this.drawGraphic(context)
 
         context.font = `${this.height * 0.7}px system-ui`
         context.textAlign = "center"
