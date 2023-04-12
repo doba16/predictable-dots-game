@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 200 200">
+
+    <defs>
+        <g id="leaf1">
+            <path d="M -80 0 a 20 20 0 0 0 -15 -10 a 20 20 0 0 0 15 10 z" fill="green"/>
+        </g>
+        <g id="leaf2">
+            <path d="M -80 0 a 20 20 0 0 0 15 -10 a 20 20 0 0 0 -15 10 z" fill="green"/>
+        </g>
+
+        <g id="left" transform="translate(0 -20)">
+            <use xlink:href="#leaf1" x="100" y="100" transform="rotate(-90 100 100)"/>
+            <use xlink:href="#leaf2" x="100" y="100" transform="rotate(-85 100 100)"/>
+            <use xlink:href="#leaf1" x="100" y="100" transform="rotate(-80 100 100)"/>
+            <use xlink:href="#leaf2" x="100" y="100" transform="rotate(-75 100 100)"/>
+            <use xlink:href="#leaf1" x="100" y="100" transform="rotate(-70 100 100)"/>
+            <use xlink:href="#leaf2" x="100" y="100" transform="rotate(-65 100 100)"/>
+            <use xlink:href="#leaf1" x="100" y="100" transform="rotate(-60 100 100)"/>
+            <use xlink:href="#leaf2" x="100" y="100" transform="rotate(-55 100 100)"/>
+            <use xlink:href="#leaf1" x="100" y="100" transform="rotate(-50 100 100)"/>
+            <use xlink:href="#leaf2" x="100" y="100" transform="rotate(-45 100 100)"/>
+            <use xlink:href="#leaf1" x="100" y="100" transform="rotate(-40 100 100)"/>
+            <use xlink:href="#leaf2" x="100" y="100" transform="rotate(-35 100 100)"/>
+            <use xlink:href="#leaf1" x="100" y="100" transform="rotate(-30 100 100)"/>
+            <use xlink:href="#leaf2" x="100" y="100" transform="rotate(-25 100 100)"/>
+            <use xlink:href="#leaf1" x="100" y="100" transform="rotate(-20 100 100)"/>
+            <use xlink:href="#leaf2" x="100" y="100" transform="rotate(-15 100 100)"/>
+            <use xlink:href="#leaf1" x="100" y="100" transform="rotate(-10 100 100)"/>
+            <use xlink:href="#leaf2" x="100" y="100" transform="rotate(-5 100 100)"/>
+            <use xlink:href="#leaf1" x="100" y="100" transform="rotate(0 100 100)"/>
+            <use xlink:href="#leaf2" x="100" y="100" transform="rotate(5 100 100)"/>
+            <use xlink:href="#leaf1" x="100" y="100" transform="rotate(10 100 100)"/>
+            <use xlink:href="#leaf2" x="100" y="100" transform="rotate(15 100 100)"/>
+            <use xlink:href="#leaf1" x="100" y="100" transform="rotate(20 100 100)"/>
+            <use xlink:href="#leaf2" x="100" y="100" transform="rotate(25 100 100)"/>
+            <use xlink:href="#leaf1" x="100" y="100" transform="rotate(30 100 100)"/>
+            <use xlink:href="#leaf2" x="100" y="100" transform="rotate(35 100 100)"/>
+        </g>
+    </defs>
+    
+    <use xlink:href="#left" />
+    <use xlink:href="#left" transform="scale(-1 1)" x="-200" />
+</svg>

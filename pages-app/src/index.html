@@ -7,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Predictable Dots Game</title>
 
-    <script src="examples/simple-example.ts" type="module" defer></script>
     <link rel="stylesheet" href="../node_modules/@doba16/simple-readme-style/css/simple-readme-style.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -31,8 +30,8 @@
         <h2>Example</h2>
 
         <p>
-            This is a live example of Dots Game. Drag your mouse while over the colored dots and click and drag to connect dots.
-            This one is fully random.
+            This is a live example of Dots Game. Move your mouse over the colored dots and click and drag to connect dots.
+            This one is fully random and has no goals to be fulfilled. This means that you will always win the game.
         </p>
 
         <canvas id="simple-example-canvas"></canvas>
@@ -40,6 +39,22 @@
         <p>
             Open in full screen: <a href="examples/simple-example.html">Click here</a>
         </p>
+
+        <h2>Goals</h2>
+
+        <p>
+            To add a bit more of a challenge you can set goals the player has to fulfill. Then you need to collect
+            the specified amount of colored dots to win. If there are no moves left and the goals are not fulfilled,
+            you lose the round.
+        </p>
+
+        <canvas id="goals-1-canvas"></canvas>
+
+        <p>
+            Open in full screen: <a href="examples/goals.html">Click here</a>
+        </p>
+
+        <script src="ts/index.ts" type="module"></script>
     </div>
 </body>
 
