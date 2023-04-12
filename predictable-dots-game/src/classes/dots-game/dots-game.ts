@@ -14,6 +14,7 @@ import LoseIcon from "../../../assets/lose.png"
 import { IconUiBarElement } from "./icon-ui-bar-element"
 import { DotUiBarElement } from "./dot-ui-bar-element"
 import { EndScreen } from "./end-screen"
+import { compareColors } from "../../utils/color"
 
 export class DotsGame {
 
@@ -43,6 +44,8 @@ export class DotsGame {
     private dotSequence: DotColor[]
     private afterSequenceEnds: "dummy" | "random"
     private sequencePosition: number = 0
+
+    private actualSequence: DotColor[] = []
 
     /**
      * Height of upper ui bar
@@ -129,6 +132,8 @@ export class DotsGame {
         this.afterSequenceEnds = afterSequenceEnds || "random"
         this.dotSequence = dotSequence || []
 
+        window.exportSequence = this.exportSequence.bind(this)
+
         this.restartGame()
     }
 
@@ -137,6 +142,8 @@ export class DotsGame {
         this.score = 0
 
         this.sequencePosition = 0
+
+        this.actualSequence = []
 
         this.dots.forEach(dots => {
             dots.forEach(dot => {
@@ -265,7 +272,7 @@ export class DotsGame {
             for (let i = 0; i < this.gameSettings.gridWidth; i++) {
                 for (let j = 0; j < this.gameSettings.gridHeight; j++) {
                     const dot = this.dots[i][j]
-                    if (dot && dot.color === this.sequence.sequence[0].color) {
+                    if (dot && compareColors(dot.color, this.sequence.sequence[0].color)) {
                         this.engine.removeGameObject(dot)
                         this.dots[i][j] = undefined
                         addedPoints++
@@ -284,7 +291,7 @@ export class DotsGame {
 
         // Update goals
         this.goals.forEach(g => {
-            if (g.goal.color === this.sequence.sequence[0].color) {
+            if (compareColors(g.goal.color, this.sequence.sequence[0].color)) {
                 g.currentAmount += addedPoints
                 g.currentAmount = Math.min(g.currentAmount, g.goal.neededAmount)
                 g.gameObject.text = g.currentAmount.toString() + "/" + g.goal.neededAmount.toString()
@@ -388,6 +395,21 @@ export class DotsGame {
             newDot = randomElement(filteredColors)
         }
 
+        this.actualSequence.push(newDot)
+
         return newDot
+    }
+
+    private exportSequence(): void {
+        const blob = new Blob([JSON.stringify(this.actualSequence, null, 4)], {
+            type: "application/json"
+        })
+
+        const url = URL.createObjectURL(blob)
+
+        const link = document.createElement("a")
+        link.href = url
+        link.download = "sequence.json"
+        link.click()
     }
 }
