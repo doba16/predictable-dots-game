@@ -40,6 +40,10 @@ export class DotsGame {
 
     private gameEndScreen?: EndScreen
 
+    private dotSequence: DotColor[]
+    private afterSequenceEnds: "dummy" | "random"
+    private sequencePosition: number = 0
+
     /**
      * Height of upper ui bar
      */
@@ -47,12 +51,15 @@ export class DotsGame {
 
     private score: number = 0
 
-    constructor({engine, width, height, goals, allowedMoves}: {
+    constructor({engine, width, height, goals, allowedMoves, afterSequenceEnds, dotSequence}: {
         engine: GameEngine,
         width: number,
         height: number,
         goals?: Goal[],
-        allowedMoves: number
+        allowedMoves: number,
+
+        dotSequence?: DotColor[]
+        afterSequenceEnds?: "dummy" | "random"
     }) {
         this.engine = engine
 
@@ -119,12 +126,17 @@ export class DotsGame {
         // Initialize dots
         this.dots = []
 
+        this.afterSequenceEnds = afterSequenceEnds || "random"
+        this.dotSequence = dotSequence || []
+
         this.restartGame()
     }
 
     private restartGame() {
         this.movesRemaining = this.totalMovesAllowed
         this.score = 0
+
+        this.sequencePosition = 0
 
         this.dots.forEach(dots => {
             dots.forEach(dot => {
@@ -137,16 +149,24 @@ export class DotsGame {
         this.dots = []
 
         for (let i: number = 0; i < this.gameSettings.gridWidth; i++) {
-            const arr: Dot[] = []
+            const arr: (Dot | undefined)[] = []
             for (let j: number = 0; j < this.gameSettings.gridHeight; j++) {
-                const dot: Dot = new Dot({x: i, y: j, color: randomElement(ALL_DOT_COLORS)})
+                arr.push(undefined)
+            }
+            this.dots.push(arr)
+        }
+
+        for (let i: number = 0; i < this.gameSettings.gridHeight; i++) {
+            const arr: Dot[] = []
+            for (let j: number = 0; j < this.gameSettings.gridWidth; j++) {
+                const dot: Dot = new Dot({x: j, y: i, color: this.chooseColor()})
                 
                 dot.addEventListener("interactionDown", () => this.beginSequenceCallback(dot))
                 dot.addEventListener("interactionEnter", () => this.enterDotCallback(dot))
-                
-                arr.push(dot)
 
                 this.engine.addGameObject(dot)
+
+                this.dots[j][i] = dot
             }
             this.dots.push(arr)
         }
@@ -350,8 +370,24 @@ export class DotsGame {
     
 
     private chooseColor(excluded?: DotColor): DotColor {
-        const colors = [...ALL_DOT_COLORS]
-        const filteredColors = colors.filter(c => c !== excluded)
-        return randomElement(filteredColors)
+        const sequenceDot = this.dotSequence[this.sequencePosition]
+
+        let newDot: DotColor
+
+        if (sequenceDot) {
+            // If dot in sequence available, return it.
+            this.sequencePosition++
+            newDot = sequenceDot
+        } else if (this.afterSequenceEnds === "dummy") {
+            // If we fill with dummy dots, return dummy 
+            newDot = DUMMY_DOT_COLOR
+        } else {
+            // Otherwise choose random color
+            const colors = [...ALL_DOT_COLORS]
+            const filteredColors = colors.filter(c => c !== excluded)
+            newDot = randomElement(filteredColors)
+        }
+
+        return newDot
     }
 }
