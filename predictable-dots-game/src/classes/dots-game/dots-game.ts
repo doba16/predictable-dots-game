@@ -9,8 +9,11 @@ import { UiBarElement } from "./ui-bar-element"
 import MovesIcon from "../../../assets/moves.png"
 import ScoreIcon from "../../../assets/score.png"
 import RetryIcon from "../../../assets/retry.png"
+import WinIcon from "../../../assets/win.png"
+import LoseIcon from "../../../assets/lose.png"
 import { IconUiBarElement } from "./icon-ui-bar-element"
 import { DotUiBarElement } from "./dot-ui-bar-element"
+import { EndScreen } from "./end-screen"
 
 export class DotsGame {
 
@@ -35,6 +38,8 @@ export class DotsGame {
 
     private goals: GoalState[]
 
+    private gameEndScreen?: EndScreen
+
     /**
      * Height of upper ui bar
      */
@@ -42,11 +47,12 @@ export class DotsGame {
 
     private score: number = 0
 
-    constructor({engine, width, height, goals}: {
+    constructor({engine, width, height, goals, allowedMoves}: {
         engine: GameEngine,
         width: number,
         height: number,
-        goals?: Goal[]
+        goals?: Goal[],
+        allowedMoves: number
     }) {
         this.engine = engine
 
@@ -65,7 +71,7 @@ export class DotsGame {
         }
 
         this.uiSize = 40
-        this.totalMovesAllowed = 30
+        this.totalMovesAllowed = allowedMoves
         
 
         this.sequence = new SequenceGameObject()
@@ -154,6 +160,11 @@ export class DotsGame {
             g.currentAmount = 0
             g.gameObject.text = g.currentAmount.toString() + "/" + g.goal.neededAmount.toString()
         })
+
+        if (this.gameEndScreen) {
+            this.engine.removeGameObject(this.gameEndScreen)
+            this.gameEndScreen = undefined
+        }
     }
 
     /**
@@ -191,6 +202,17 @@ export class DotsGame {
         this.goals.forEach((g, i) => {
             g.gameObject.x = middleUiX + this.uiSize * 7 + i * 3.5 * this.uiSize
         })
+
+        if (this.gameEndScreen) {
+            const dialogHeight = (this.engine.height - this.uiSize * 1.5) * 0.5
+
+
+
+            this.gameEndScreen.x = (this.engine.width - dialogHeight * 1.5) / 2
+            this.gameEndScreen.y = (this.engine.height - this.uiSize * 1.5 - dialogHeight) / 2 + this.uiSize * 1.5
+            this.gameEndScreen.width = dialogHeight * 1.5
+            this.gameEndScreen.height = dialogHeight
+        }
     }
 
     /**
@@ -289,11 +311,12 @@ export class DotsGame {
 
         if (this.movesRemaining <= 0) {
             this.gameActive = false
+            win = this.goals.length === 0
         }
 
         // Test if all goals are fulfilled
         const goalsFulfilled = this.goals.reduce((prev, g) => prev && g.currentAmount >= g.goal.neededAmount, true)
-        if (goalsFulfilled) {
+        if (goalsFulfilled && this.goals.length > 0) {
             this.gameActive = false
             win = true
         }
@@ -315,9 +338,11 @@ export class DotsGame {
             })
 
             if (win) {
-                alert("Win!")
+                this.gameEndScreen = new EndScreen(WinIcon, "Gewonnen!")
+                this.engine.addGameObject(this.gameEndScreen)
             } else {
-                alert("Lose!")
+                this.gameEndScreen = new EndScreen(LoseIcon, "Verloren!")
+                this.engine.addGameObject(this.gameEndScreen)
             }
         }
     }
