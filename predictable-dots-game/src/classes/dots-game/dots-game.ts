@@ -4,11 +4,13 @@ import { GameSettings } from "../../types/game-settings"
 import { RenderSettings } from "../../types/render-settings"
 import { randomElement } from "../../utils/arrays"
 import { Dot } from "./dot"
-import { DotColor } from "../../index"
+import { DotColor, Goal, GoalState } from "../../index"
 import { UiBarElement } from "./ui-bar-element"
 import MovesIcon from "../../../assets/moves.png"
 import ScoreIcon from "../../../assets/score.png"
 import RetryIcon from "../../../assets/retry.png"
+import { IconUiBarElement } from "./icon-ui-bar-element"
+import { DotUiBarElement } from "./dot-ui-bar-element"
 
 export class DotsGame {
 
@@ -31,6 +33,8 @@ export class DotsGame {
     private totalMovesAllowed: number
     private movesRemaining: number = 0
 
+    private goals: GoalState[]
+
     /**
      * Height of upper ui bar
      */
@@ -38,10 +42,11 @@ export class DotsGame {
 
     private score: number = 0
 
-    constructor({engine, width, height}: {
+    constructor({engine, width, height, goals}: {
         engine: GameEngine,
         width: number,
-        height: number
+        height: number,
+        goals?: Goal[]
     }) {
         this.engine = engine
 
@@ -66,27 +71,44 @@ export class DotsGame {
         this.sequence = new SequenceGameObject()
         this.engine.addGameObject(this.sequence)
 
-        this.movesDisplay = new UiBarElement(MovesIcon, "")
+        this.movesDisplay = new IconUiBarElement(MovesIcon, "")
         this.engine.addGameObject(this.movesDisplay)
         this.movesDisplay.height = this.uiSize
         this.movesDisplay.width = 3 * this.uiSize
         this.movesDisplay.text = this.movesRemaining.toString()
         this.movesDisplay.y = this.uiSize / 2
 
-        this.scoreDisplay = new UiBarElement(ScoreIcon, "")
+        this.scoreDisplay = new IconUiBarElement(ScoreIcon, "")
         this.engine.addGameObject(this.scoreDisplay)
         this.scoreDisplay.height = this.uiSize
         this.scoreDisplay.width = 3 * this.uiSize
         this.scoreDisplay.text = this.score.toString()
         this.scoreDisplay.y = this.uiSize / 2
 
-        this.retryButton = new UiBarElement(RetryIcon, "")
+        this.retryButton = new IconUiBarElement(RetryIcon, "")
         this.retryButton.width = this.uiSize
         this.retryButton.height = this.uiSize
         this.engine.addGameObject(this.retryButton)
         this.retryButton.hoverEffect = true
         this.retryButton.y = this.uiSize / 2
         this.retryButton.addEventListener("interactionUp", this.restartGame.bind(this))
+
+        const goalsDefined = goals || []
+
+        this.goals = goalsDefined.map(g => ({
+            goal: g,
+            currentAmount: 0,
+            gameObject: new DotUiBarElement(g.color)
+        }))
+
+        // Add goals to game engine and set bounds
+        this.goals.forEach(g => {
+            g.gameObject.y = this.uiSize / 2
+            g.gameObject.width = this.uiSize * 3
+            g.gameObject.height = this.uiSize
+            g.gameObject.x = 10
+            this.engine.addGameObject(g.gameObject)
+        })
 
         // Initialize dots
         this.dots = []
@@ -126,6 +148,12 @@ export class DotsGame {
         this.gameActive = true
         this.scoreDisplay.text = this.score.toString()
         this.movesDisplay.text = this.movesRemaining.toString()
+
+        // Reset Goals
+        this.goals.forEach(g => { 
+            g.currentAmount = 0
+            g.gameObject.text = g.currentAmount.toString() + "/" + g.goal.neededAmount.toString()
+        })
     }
 
     /**
@@ -153,12 +181,16 @@ export class DotsGame {
 
         this.retryButton.x = this.engine.width - this.retryButton.width - this.uiSize / 2
 
-        const numberOfUiElements = 2
+        const numberOfUiElements = 2 + this.goals.length
         const middleUiWidth = numberOfUiElements * this.uiSize * 3 + (numberOfUiElements - 1) * 0.5 * this.uiSize
         const middleUiX = (this.engine.width - middleUiWidth) / 2
 
         this.movesDisplay.x = middleUiX
         this.scoreDisplay.x = middleUiX + this.uiSize * 3.5
+
+        this.goals.forEach((g, i) => {
+            g.gameObject.x = middleUiX + this.uiSize * 7 + i * 3.5 * this.uiSize
+        })
     }
 
     /**
@@ -185,6 +217,8 @@ export class DotsGame {
 
         const isSquare = this.sequence.isSquareMove()
 
+        let addedPoints = 0
+
         if (isSquare) {
             for (let i = 0; i < this.gameSettings.gridWidth; i++) {
                 for (let j = 0; j < this.gameSettings.gridHeight; j++) {
@@ -192,7 +226,7 @@ export class DotsGame {
                     if (dot && dot.color === this.sequence.sequence[0].color) {
                         this.engine.removeGameObject(dot)
                         this.dots[i][j] = undefined
-                        this.score++
+                        addedPoints++
                     }
                 }
             }
@@ -202,8 +236,18 @@ export class DotsGame {
                 this.engine.removeGameObject(dot)
             }
 
-            this.score += this.sequence.sequence.length
+            addedPoints += this.sequence.sequence.length
         }
+        this.score += addedPoints
+
+        // Update goals
+        this.goals.forEach(g => {
+            if (g.goal.color === this.sequence.sequence[0].color) {
+                g.currentAmount += addedPoints
+                g.currentAmount = Math.min(g.currentAmount, g.goal.neededAmount)
+                g.gameObject.text = g.currentAmount.toString() + "/" + g.goal.neededAmount.toString()
+            }
+        })
 
         // Drop dots down
         for (let i: number = this.gameSettings.gridHeight - 1; i >= 0; i--) {
@@ -239,10 +283,24 @@ export class DotsGame {
             }
         }
 
-        this.sequence.sequence = []
+        let win = false
 
         this.movesRemaining--
-        this.gameActive = this.movesRemaining > 0
+
+        if (this.movesRemaining <= 0) {
+            this.gameActive = false
+        }
+
+        // Test if all goals are fulfilled
+        const goalsFulfilled = this.goals.reduce((prev, g) => prev && g.currentAmount >= g.goal.neededAmount, true)
+        if (goalsFulfilled) {
+            this.gameActive = false
+            win = true
+        }
+
+        this.sequence.sequence = []
+
+        
 
         this.movesDisplay.text = this.movesRemaining.toString()
         this.scoreDisplay.text = this.score.toString()
@@ -255,6 +313,12 @@ export class DotsGame {
                     }
                 })
             })
+
+            if (win) {
+                alert("Win!")
+            } else {
+                alert("Lose!")
+            }
         }
     }
 
