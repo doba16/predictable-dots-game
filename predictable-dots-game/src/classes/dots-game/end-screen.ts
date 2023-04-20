@@ -94,7 +94,7 @@ export class EndScreen extends AbstractGameObject {
     }
 
     public set width(width: number) {
-        this._width = width
+        this._width = Math.max(width, 0)
     }
 
     public get height(): number {
@@ -102,7 +102,7 @@ export class EndScreen extends AbstractGameObject {
     }
 
     public set height(height: number) {
-        this._height = height
+        this._height = Math.max(height, 0)
     }
 
     public get text(): string {
