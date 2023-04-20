@@ -1,5 +1,6 @@
-import { DUMMY_DOT_COLOR, Dot } from "../../index";
+import { DUMMY_DOT_COLOR, Dot, DotColor } from "../../index";
 import { RenderSettings } from "../../types/render-settings";
+import { compareColors } from "../../utils/color";
 import { GameObject } from "../engine/index";
 
 
@@ -58,12 +59,12 @@ export class SequenceGameObject implements GameObject {
         const prevDot = this.sequence[this.sequence.length - 1]
         const prevPrevDot = this.sequence[this.sequence.length - 2]
 
-        if (firstDot.color !== dot.color) {
+        if (!compareColors(firstDot.color, dot.color)) {
             return
         }
 
         // Do not allow connection of dummy dots
-        if (firstDot.color === DUMMY_DOT_COLOR) {
+        if (compareColors(firstDot.color, DUMMY_DOT_COLOR)) {
             return
         }
 
@@ -85,7 +86,7 @@ export class SequenceGameObject implements GameObject {
     public isSquareMove(): boolean {
         for (let i = 0; i < this.sequence.length; i++) {
             for (let j = i + 1; j < this.sequence.length; j++) {
-                if (this.sequence[i] === this.sequence[j]) {
+                if (this.sequence[i].xLocation === this.sequence[j].xLocation && this.sequence[i].yLocation === this.sequence[j].yLocation) {
                     return true
                 }
             }
